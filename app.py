@@ -88,27 +88,32 @@ if st.button("Submit"):
         st.error("Duplicate entry detected.")
     conn.close()
 
-# Display existing records with edit and delete functionality
-if st.checkbox("Show Existing Records"):
-    st.subheader("Existing Records")
-    conn = get_db_connection()
-    data = fetch_reference_data(conn)
+# Display existing records by default and enable editing only
+st.subheader("Existing Records")
+conn = get_db_connection()
+data = fetch_reference_data(conn)
 
-    if not data.empty:
-        # Display editable table
-        edited_data = st.data_editor(data, key="data_editor", num_rows="dynamic", use_container_width=True)
+if not data.empty:
+    # Display editable table but disable adding new rows
+    edited_data = st.data_editor(
+        data,
+        key="data_editor",
+        num_rows="fixed",  # Disable adding new rows
+        use_container_width=True
+    )
 
-        # Save changes
-        if st.button("Save Changes"):
-            update_reference_data(conn, edited_data)
-            st.success("Changes saved successfully!")
+    # Save changes
+    if st.button("Save Changes"):
+        update_reference_data(conn, edited_data)
+        st.success("Changes saved successfully!")
 
-        # Delete selected row
-        delete_index = st.number_input("Enter the row index to delete:", min_value=0, max_value=len(data) - 1, step=1)
-        if st.button("Delete Selected Row"):
-            sha_hash_to_delete = data.iloc[delete_index]['sha_hash']
-            delete_reference_data(conn, sha_hash_to_delete)
-            st.success("Row deleted successfully!")
-    else:
-        st.write("No records found.")
-    conn.close()
+    # Delete selected row
+    delete_index = st.number_input("Enter the row index to delete:", min_value=0, max_value=len(data) - 1, step=1)
+    if st.button("Delete Selected Row"):
+        sha_hash_to_delete = data.iloc[delete_index]['sha_hash']
+        delete_reference_data(conn, sha_hash_to_delete)
+        st.success("Row deleted successfully!")
+else:
+    st.write("No records found.")
+
+conn.close()
