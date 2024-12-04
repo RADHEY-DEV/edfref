@@ -1,0 +1,4 @@
+[server]
+headless = true
+enableCORS = false
+port = $PORT  # This will make Streamlit bind to the dynamic port assigned by Azure
